@@ -1,6 +1,11 @@
 # A Super Simple Automatic Chromedriver Downloader
 
-Usage:
+## Installation:
+```bash
+pip install chromedriver-autodownloader
+```
+
+## Usage:
 ```python
 from chromedriver_autodownloader import download_chromedriver
 download_chromedriver() # download and extract chromedriver to current directory
