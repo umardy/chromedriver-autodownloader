@@ -3,7 +3,8 @@ import subprocess
 import sys
 import zipfile
 import os
-import requests
+import urllib.request
+import io
 
 
 chrome_version_map = {
@@ -47,24 +48,22 @@ def download_chromedriver(target_dir=None):
     chrome_version_url = chromedriver_url + "LATEST_RELEASE_" + version
 
     try:
-        res = requests.get(chrome_version_url)
+        res = urllib.request.urlopen(chrome_version_url).read()
         download_url = (
             chromedriver_url
-            + res.text
+            + res.decode('utf-8')
             + "/"
             + chrome_version_map[platform]["zipfile_name"]
         )
         print(f"Downloading chromedriver from: {download_url}")
-        res = requests.get(download_url)
-        with open("chromedriver.zip", "wb") as chromedriver:
-            for chunk in res.iter_content(chunk_size=100000):
-                chromedriver.write(chunk)
+        res = urllib.request.urlopen(download_url)
+        binary_file = io.BytesIO(res.read())
     except Exception as e:
         print("Error.", e)
 
     try:
         print("Extracting chromedriver to ", end="")
-        with zipfile.ZipFile("chromedriver.zip", "r") as zip_ref:
+        with zipfile.ZipFile(binary_file, "r") as zip_ref:
             if target_dir:
                 if target_dir == "helium":
                     import importlib
@@ -83,7 +82,7 @@ def download_chromedriver(target_dir=None):
             else:
                 print("current directory.")
                 zip_ref.extractall()
-        os.unlink("chromedriver.zip")
+        binary_file.close()
         print("Done.")
 
     except Exception as e:
