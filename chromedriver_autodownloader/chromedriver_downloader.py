@@ -10,12 +10,12 @@ chrome_version_map = {
     "linux": {
         "name": "linux",
         "zipfile_name": "chromedriver_linux64.zip",
-        "cmd": r"google-chrome --version",
+        "cmd": ["google-chrome", "--version"],
     },
     "darwin": {
         "name": "mac",
         "zipfile_name": "chromedriver_mac64.zip",
-        "cmd": r"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome --version",
+        "cmd": ["/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", "--version"],
     },
     "win32": {
         "name": "windows",
@@ -34,8 +34,15 @@ def download_chromedriver(target_dir=None):
 
     platform = sys.platform
     pattern = r"([\s=])(\d{2,3})(.)"
-    chrome_version = subprocess.check_output(chrome_version_map[platform]["cmd"])
-    version = re.search(pattern, str(chrome_version)).group(2)
+    try:
+        chrome_version = subprocess.check_output(chrome_version_map[platform]["cmd"])
+        version = re.search(pattern, str(chrome_version)).group(2)
+    except:
+        if sys.platform == 'win32':
+            cmd = chrome_version_map[platform]["cmd"].replace("Program Files", "Program Files (x86)") # 32 bit chrome?
+            chrome_version = subprocess.check_output(cmd)
+            version = re.search(pattern, str(chrome_version)).group(2)
+
     print(f"Your chrome version: {version}")
     chrome_version_url = chromedriver_url + "LATEST_RELEASE_" + version
 
