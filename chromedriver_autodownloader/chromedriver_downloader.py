@@ -43,6 +43,11 @@ def download_chromedriver(target_dir=None):
             cmd = chrome_version_map[platform]["cmd"].replace("Program Files", "Program Files (x86)") # 32 bit chrome?
             chrome_version = subprocess.check_output(cmd)
             version = re.search(pattern, str(chrome_version)).group(2)
+            try:
+                version = re.search(pattern, str(chrome_version)).group(2)
+            except:
+                print('\nFail to determine chrome version automatically.')
+                version = input('Please check your chrome version manually, and input the version here: ')
 
     print(f"Your chrome version: {version}")
     chrome_version_url = chromedriver_url + "LATEST_RELEASE_" + version
